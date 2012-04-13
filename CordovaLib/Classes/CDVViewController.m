@@ -304,7 +304,7 @@
 			break;
 	}
 	// TODO: update JS references here
-	NSString* jsCallback = [NSString stringWithFormat:@"window.__defineGetter__('orientation',function(){ return %d; }); Cordova.fireEvent('orientationchange', window);",i];
+	NSString* jsCallback = [NSString stringWithFormat:@"window.__defineGetter__('orientation',function(){ return %d; }); cordova.fireEvent('orientationchange', window);",i];
 	[self.webView stringByEvaluatingJavaScriptFromString:jsCallback];    
 }
 
@@ -376,7 +376,7 @@
         [result appendFormat:@"\nwindow.Settings = %@;", [temp JSONString]];
     }
     
-    DLog(@"Device initialization: %@", result);
+    // DLog(@"Device initialization: %@", result);
     NSString* jsResult = [theWebView stringByEvaluatingJavaScriptFromString:result];
     // if jsResult is not nil nor empty, an error
     if (jsResult != nil && [jsResult length] > 0) {
@@ -439,7 +439,7 @@
         {
             NSNumber *openAllInWhitelistSetting = [self.settings objectForKey:@"OpenAllWhitelistURLsInWebView"];
             if ((nil != openAllInWhitelistSetting) && [openAllInWhitelistSetting boolValue]) {
-                NSLog(@"OpenAllWhitelistURLsInWebView set: opening in webview");
+                NSLog(@"OpenAllWhitelistURLsInWebView: opening %@", [url absoluteString]);
                 return YES;
             }
 			
@@ -734,10 +734,11 @@ BOOL gSplashScreenShown = NO;
 
 - (BOOL) execute:(CDVInvokedUrlCommand*)command
 {
-    DLog(@"execute class:%@ method:%@", command.className, command.methodName);
-    DLog(@"arguments: %@", [command.arguments JSONString]);
-    DLog(@"options: %@", [command.options JSONString]);
-    
+    if (DEBUG && !([command.className isEqualToString:@"Debug Console"] && [command.methodName isEqualToString:@"log"])) {
+        DLog(@"execute class:%@ method:%@", command.className, command.methodName);
+        DLog(@"arguments: %@", [command.arguments JSONString]);
+        DLog(@"options: %@", [command.options JSONString]);
+    }
     if (command.className == nil || command.methodName == nil) {
         return NO;
     }
